@@ -1,30 +1,33 @@
 # -*- coding: utf-8 -*-
-import click
-import logging
+import argparse
+from src import logger
 from pathlib import Path
-from dotenv import find_dotenv, load_dotenv
+from load_dataset import load_data
+from split_dataset import split_data
+from src.utils.utility_fn import read_params
 
-
-@click.command()
-@click.argument('input_filepath', type=click.Path(exists=True))
-@click.argument('output_filepath', type=click.Path())
-def main(input_filepath, output_filepath):
+def main(config_path):
     """ Runs data processing scripts to turn raw data from (../raw) into
         cleaned data ready to be analyzed (saved in ../processed).
     """
-    logger = logging.getLogger(__name__)
     logger.info('making final data set from raw data')
+
+    config = read_params(config_path)
+    external_data_path = config["external_data_config"]["external_data_csv"]
+    raw_data_path = config["raw_data_config"]["raw_data_csv"]
+    model_var = config["raw_data_config"]["model_var"]
+    train_data_path = config["processed_data_config"]["train_data_csv"]
+    test_data_path = config["processed_data_config"]["test_data_csv"]
+    split_ratio = config["raw_data_config"]["train_test_split_ratio"]
+    random_state = config["raw_data_config"]["random_state"]
+
+    df = load_data(external_data_path, model_var)
+    split_data(df, train_data_path, test_data_path, split_ratio, random_state)
+
 
 
 if __name__ == '__main__':
-    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    logging.basicConfig(level=logging.INFO, format=log_fmt)
-
-    # not used in this stub but often useful for finding various files
-    project_dir = Path(__file__).resolve().parents[2]
-
-    # find .env automagically by walking up directories until it's found, then
-    # load up the .env entries as environment variables
-    load_dotenv(find_dotenv())
-
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default="params.yaml")
+    args = parser.parse_args()
+    main(config_path=args.config)
