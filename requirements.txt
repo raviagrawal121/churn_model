@@ -9,3 +9,4 @@ flake8
 python-dotenv
 pandas
 scikit-learn
+mlflow
