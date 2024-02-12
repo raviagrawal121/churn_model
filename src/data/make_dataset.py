@@ -4,7 +4,7 @@ from src import logger
 from pathlib import Path
 from load_dataset import load_data
 from split_dataset import split_data
-from src.utils.utility_fn import read_params
+from src.utils.common import read_params
 
 def main(config_path):
     """ Runs data processing scripts to turn raw data from (../raw) into
